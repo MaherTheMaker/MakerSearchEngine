@@ -26,7 +26,6 @@ def cleanAll():
                 d=l.split((" "))[4]
                 y=l.split((" "))[5]
                 date=m+" "+d+" "+y
-                print(date,doc_id)
                 date1_obj = datetime.strptime(date ,'%B %d, %Y')
                 date_set[doc_id]=date1_obj
 

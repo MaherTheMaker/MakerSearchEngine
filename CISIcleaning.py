@@ -12,6 +12,8 @@ def cleanAll():
     doc_set = {}
     doc_id = ""
     doc_text = ""
+    title=[]
+
     for l in lines:
         if l.startswith(".I"):
             doc_id = l.split(" ")[1].strip()
@@ -22,9 +24,14 @@ def cleanAll():
         else:
             doc_text += l.strip()[3:] + " "  # The first 3 characters of a line can be ignored.
 
+    for l in lines:
+        if l.startswith(".T"):
+            t= l.strip()[3:]
+            title.append(t)
+
     # Print something to see the dictionary structure, etc.
     print(f"Number of documents = {len(doc_set)}" + ".\n")
-    return doc_set;
+    return doc_set,title;
 
 def cleanQRY():
     with open('CISI/CISI.QRY') as f:

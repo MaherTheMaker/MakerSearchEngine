@@ -3,6 +3,7 @@ import os
 import pickle
 
 import numpy as np
+from nltk.corpus import stopwords
 
 import PreProcessingFun as pre
 import CISIcleaning as CIclean
@@ -44,13 +45,16 @@ def savefile():
 
 
 def startCISI():
-    dddd1.doc_set = CIclean.cleanAll()
+    dddd1.doc_set,title = CIclean.cleanAll()
+    dddd1.title=title
 
     for i in dddd1.doc_set:
         doc_token_id = i
         dddd1.processed_set[doc_token_id] = pre.preprocess(dddd1.doc_set[str(i)])
     tokens_set = pre.tokenizer(dddd1.processed_set)
+
     dddd1.DF = DD.DF(tokens_set)
+
     tf_idf = DD.TF_IDF(tokens_set, dddd1.DF)
     dddd1.total_vocab = [x for x in dddd1.DF]
     total_vocab_size = len(dddd1.total_vocab)  # number of term
@@ -108,13 +112,56 @@ def Query2(strQ):
     return QQ.cosine_similarity(10, strQ, dddd2.D, dddd2.N, dddd2.total_vocab, dddd2.DF)
 
 
+def jojo():
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    stop_words = stopwords.words('english')
+    # tfidf vectorizer of scikit learn
+    vectorizer = TfidfVectorizer(stop_words=stop_words, max_features=10000, max_df=0.5, use_idf=True,
+                                 ngram_range=(1, 3))
+    X = vectorizer.fit_transform(dddd1.processed_set)
+    print(X.shape)  # check shape of the document-term matrix
+    terms = vectorizer.get_feature_names()
+    from sklearn.cluster import KMeans
+    num_clusters = 5
+    km = KMeans(n_clusters=num_clusters)
+    km.fit(X)
+    clusters = km.labels_.tolist()
 
+    tewmp=5
+    print(tewmp)
+
+    order_centroids = km.cluster_centers_.argsort()[:, ::-1]
+
+    print(len(order_centroids))
+    print(order_centroids[0])
+
+
+
+
+    from sklearn.utils.extmath import randomized_svd
+    U, Sigma, VT = randomized_svd(X, n_components=5, n_iter=100,
+                                  random_state=122)
+    # printing the concepts
+    for i, comp in enumerate(VT):
+        terms_comp = zip(dddd1.doc_set, comp)
+        sorted_terms = sorted(terms_comp, key=lambda x: x[1], reverse=True)
+        print("Concept " + str(i) + ": ")
+        for t in sorted_terms:
+            print(t[0])
+        print(" ")
+
+
+    return
 
 
 if __name__ == '__main__':
-    startCACM()
+    startCISI()
+    jojo()
+    # Eval()
     # startCISI()
     # print(dddd1.doc_set["99"])
     # print(dddd2.doc_set["99"])
     # Query2()
+
+
 

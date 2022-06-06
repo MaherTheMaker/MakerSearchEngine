@@ -76,7 +76,7 @@ def add_message():
 def SearchCISI(QueryText):
     # show the user profile for that user
     Q = MM.Query1(QueryText)
-    print(Q)
+    print("q",Q)
     lsit = []
     for i in range(len(Q)):
         lsit.append({'doc': DDDD1.doc_set[str(Q[i])], 'id': str(Q[i])})

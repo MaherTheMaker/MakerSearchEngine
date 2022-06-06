@@ -50,10 +50,6 @@ def cosine_similarity(k, query,D,N,total_vocab,DF):
     # print("query victor ", query_vector)
 
 
-
-
-
-
     for d in D:
         d_cosines.append(cosine_sim(query_vector, d))
 

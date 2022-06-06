@@ -31,8 +31,9 @@ def TF_IDF(tokens_set,DF):
     N = len(tokens_set)
     tf_idf = {}
 
-    for i in range(1,len(tokens_set)):
-        if (i > 0):
+    tokens = tokens_set[str(1)]
+    for i in range( len(tokens_set)):
+        if (i > 1):
             tokens = tokens_set[str(i)]
 
         counter = Counter(tokens)
@@ -40,7 +41,7 @@ def TF_IDF(tokens_set,DF):
 
         for token in np.unique(tokens):
             tf = counter[token] / words_count
-            df = doc_freq(token,DF)
+            df = doc_freq(token, DF)
             idf = np.log((N + 1) / (df + 1))
 
             tf_idf[doc, token] = tf * idf
