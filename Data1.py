@@ -1,12 +1,16 @@
-doc_set={}
+doc_set = {}
 processed_set = {}
-proc_token_id = ""
-proc_token_text = ""
-N=0
-D=0
-total_vocab=""
-DF={}
-title=[]
+N = 0
+D = 0
+total_vocab = ""
+DF = {}
+title = []
 
-
-liiiist=[doc_set,processed_set,N,D,total_vocab,DF]
+centers = []
+arr_dic = [{}, {}, {}, {}, {}]
+arr_proc = [{}, {}, {}, {}, {}]
+arr_DF = [{}, {}, {}, {}, {}]
+arr_D = [{}, {}, {}, {}, {}]
+arr_total=[[],[],[],[],[]]
+arr_N=[0,0,0,0,0]
+liiiist = [doc_set, processed_set, N, D, total_vocab, DF]

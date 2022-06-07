@@ -18,6 +18,22 @@ def DF(tokens_set):
         DF[i] = len(DF[i])
     return DF;
 
+def DF2(tokens_set,keys):
+    DF = {}
+
+    for i in keys:
+        i=int(i)
+        tokens = tokens_set[str(int(i))]
+        for w in tokens:
+            try:
+                DF[w].add(i)
+            except:
+                DF[w] = {i}
+    for i in DF:
+        DF[i] = len(DF[i])
+    return DF;
+
+
 def doc_freq(word,DF):
     c = 0
     try:
@@ -50,6 +66,28 @@ def TF_IDF(tokens_set,DF):
     print("tf-idf done")
     return tf_idf
 
+def TF_IDF2(tokens_set,DF,keys):
+    doc = 0
+    N = len(tokens_set)
+    tf_idf = {}
+
+    for i in keys:
+
+        tokens = tokens_set[str(i)]
+
+        counter = Counter(tokens)
+        words_count = len(tokens)
+
+        for token in np.unique(tokens):
+            tf = counter[token] / words_count
+            df = doc_freq(token, DF)
+            idf = np.log((N + 1) / (df + 1))
+
+            tf_idf[int(i), token] = tf * idf
+        doc += 1
+
+    print("tf-idf done")
+    return tf_idf
 
 
 # def cosine_similarity(k, query):

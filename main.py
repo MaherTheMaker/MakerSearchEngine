@@ -1,8 +1,10 @@
 import doctest
 import os
 import pickle
+import sys
 
 import numpy as np
+from nltk import word_tokenize
 from nltk.corpus import stopwords
 
 import PreProcessingFun as pre
@@ -44,13 +46,16 @@ def savefile():
     return
 
 
-def startCISI():
-    dddd1.doc_set,title = CIclean.cleanAll()
-    dddd1.title=title
+def start():
+    dddd1.doc_set, title = CIclean.cleanAll()
+    dddd1.title = title
+    dddd2.doc_set = CMcleaning.cleanAll()
 
+
+def startCISI():
     for i in dddd1.doc_set:
         doc_token_id = i
-        dddd1.processed_set[doc_token_id] = pre.preprocess(dddd1.doc_set[str(i)])
+        dddd1.processed_set[doc_token_id] = pre.preprocess(dddd1.doc_set[str(i)], 1)
     tokens_set = pre.tokenizer(dddd1.processed_set)
 
     dddd1.DF = DD.DF(tokens_set)
@@ -73,11 +78,41 @@ def startCISI():
     return
 
 
+def startCISI_cluser(clus_num):
+    for i in dddd1.arr_dic[clus_num]:
+        doc_token_id = i
+        dddd1.arr_proc[clus_num][doc_token_id] = pre.preprocess(dddd1.arr_dic[clus_num][str(i)],1)
+
+    tokens_set = pre.tokenizer(dddd1.arr_proc[clus_num])
+
+    print("\n \n ")
+    print("token setlen ", len(tokens_set))
+    print("dddd1.arr_dic[clus_num].keys()", dddd1.arr_dic[clus_num].keys())
+    dddd1.arr_DF[clus_num] = DD.DF2(tokens_set, dddd1.arr_dic[clus_num].keys())
+
+    tf_idf = DD.TF_IDF2(tokens_set, dddd1.arr_DF[clus_num], dddd1.arr_dic[clus_num].keys())
+    dddd1.arr_total[clus_num] = [x for x in dddd1.arr_DF[clus_num]]
+    total_vocab_size = len(dddd1.arr_total[clus_num])  # number of term
+
+    dddd1.arr_N[clus_num] = len(dddd1.arr_dic[clus_num])  # number of Docs
+
+    dddd1.arr_D[clus_num] = np.zeros(
+        (dddd1.arr_N[clus_num], total_vocab_size))  # total_vocab_size is the length of dddd.DF
+    for i in tf_idf:
+        try:
+            ind = dddd1.arr_total[clus_num].index(i[1])
+            dddd1.arr_D[clus_num][i[0]][ind] = tf_idf[i]
+        except:
+            pass
+
+    # dddd1.liiiist = [dddd1.doc_set, dddd1.processed_set, dddd1.N, dddd1.D, dddd1.total_vocab, dddd1.DF]
+    return
+
+
 def startCACM():
-    dddd2.doc_set = CMcleaning.cleanAll()
     for i in dddd2.doc_set:
         doc_token_id = i
-        dddd2.processed_set[doc_token_id] = pre.preprocess(dddd2.doc_set[str(i)])
+        dddd2.processed_set[doc_token_id] = pre.preprocess(dddd2.doc_set[str(i)],2)
     tokens_set = pre.tokenizer(dddd2.processed_set)
     dddd2.DF = DD.DF(tokens_set)
     tf_idf = DD.TF_IDF(tokens_set, dddd2.DF)
@@ -96,20 +131,45 @@ def startCACM():
 
     dddd2.liiiist = [dddd2.doc_set, dddd2.processed_set, dddd2.N, dddd2.D, dddd2.total_vocab, dddd2.DF]
     return
+
+
 def Eval():
     qry_set = CIclean.cleanQRY()
-
-    EE.eval(dddd1.doc_set, qry_set, dddd1.D, dddd1.N, dddd1.total_vocab, dddd1.DF)
-    return
+    sum2=0
+    # for i in range(1,11):
+    #     print(i)
+    #     hotfudge = EE.eval(dddd1.doc_set, qry_set, dddd1.D, dddd1.N, dddd1.total_vocab, dddd1.DF,i)
+    #     sum+=hotfudge
+    hotfudge = EE.eval(dddd1.doc_set, qry_set, dddd1.D, dddd1.N, dddd1.total_vocab, dddd1.DF, 10)
+    # randlist=hotfudge[1]
+    # sumRR=0.0
+    # for r in randlist:
+    #     sumRR+= 1/r
+    # MRR= sumRR/len(hotfudge[0])
+    # print("MRR",MRR)
+    return hotfudge
 
     # CIclean.cleanQRY()
+
+
+def EvalClusters():
+    qry_set = CIclean.cleanQRY()
+
+    hotfudge = EE.eval(dddd1.doc_set, qry_set, dddd1.D, dddd1.N, dddd1.total_vocab, dddd1.DF)
+    return hotfudge
 
 
 def Query1(strQ):
     return QQ.cosine_similarity(10, strQ, dddd1.D, dddd1.N, dddd1.total_vocab, dddd1.DF)
 
+
 def Query2(strQ):
     return QQ.cosine_similarity(10, strQ, dddd2.D, dddd2.N, dddd2.total_vocab, dddd2.DF)
+
+
+def Query1Cluster(strQ, clus_num):
+    return QQ.cosine_similarity(10, strQ, dddd1.arr_D[clus_num], dddd1.arr_N[clus_num], dddd1.arr_total[clus_num],
+                                dddd1.arr_DF[clus_num])
 
 
 def jojo():
@@ -127,41 +187,99 @@ def jojo():
     km.fit(X)
     clusters = km.labels_.tolist()
 
-    tewmp=5
-    print(tewmp)
+    # centers_5=km.cluster_centers_.argsort()[:, ::-1]
+    #
+    # allcluster_5=km.cluster_centers_.argsort()
+    #
+    # print("center=",centers_5)
+    # print("allclusters=",allcluster_5)
 
     order_centroids = km.cluster_centers_.argsort()[:, ::-1]
 
     print(len(order_centroids))
     print(order_centroids[0])
 
-
-
+    T = []
+    centers = []
 
     from sklearn.utils.extmath import randomized_svd
     U, Sigma, VT = randomized_svd(X, n_components=5, n_iter=100,
                                   random_state=122)
     # printing the concepts
     for i, comp in enumerate(VT):
+
         terms_comp = zip(dddd1.doc_set, comp)
-        sorted_terms = sorted(terms_comp, key=lambda x: x[1], reverse=True)
+        sorted_terms = sorted(terms_comp, key=lambda x: x[1], reverse=True)[:int(len(dddd1.doc_set) / num_clusters)]
         print("Concept " + str(i) + ": ")
         for t in sorted_terms:
-            print(t[0])
+            T.append(t[0])
+            dddd1.arr_dic[i][str(t[0])] = dddd1.doc_set[str(t[0])]
+
         print(" ")
 
+    for i, comp in enumerate(VT):
+        terms_comp = zip(dddd1.doc_set, comp)
+        sorted_terms = sorted(terms_comp, key=lambda x: x[1], reverse=True)[:1]
+        print("Concept " + str(i) + ": ")
+        for t in sorted_terms:
+            centers.append(t[0])
+            print(t[0])
+        print(" ")
+    dddd1.centers = centers
+    return
+
+
+def checkCluster(query):
+    preprocessed_query = pre.preprocess(query)
+    tokens = word_tokenize(str(preprocessed_query))
+    print(tokens)
+    print("\nQuery:", query)
+
+    d_cosines = []
+
+    print("N", dddd1.N)
+    print("total", len(dddd1.total_vocab))
+    query_vector = QQ.gen_vector(tokens, dddd1.N, dddd1.total_vocab, dddd1.DF)
+
+    print(query_vector)
+    for c in dddd1.centers:
+        print("c", c)
+        print("d[c]", dddd1.D[int(c)])
+        d_cosines.append(QQ.cosine_sim(query_vector, dddd1.D[int(c)]))
+    print("d_cosines", d_cosines)
+    out = np.array(d_cosines).argsort()[::-1]
+    print("cluster ", out[0])
+    res = out[0]
+
+    if (d_cosines[res] == 0):
+        return -1
+    return out[0]
+
+
+def check():
+    print(dddd1.arr_D[4])
+    print(dddd1.arr_N[4])
+    print(dddd1.arr_total[3])
 
     return
 
 
 if __name__ == '__main__':
+    start()
+    # startCACM()
     startCISI()
-    jojo()
+    print(Eval())
+    # jojo()
+    # startCISI_cluser(0)
+    # startCISI_cluser(1)
+    # startCISI_cluser(2)
+    # startCISI_cluser(3)
+    # startCISI_cluser(4)
+    # check()
+
+    # startCISI_cluser()
     # Eval()
     # startCISI()
     # print(dddd1.doc_set["99"])
     # print(dddd2.doc_set["99"])
     # Query2()
-
-
-

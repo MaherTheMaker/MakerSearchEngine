@@ -25,7 +25,7 @@ def gen_vector(tokens,N,total_vocab,DF):
     for token in np.unique(tokens):
 
         tf = counter[token] / words_count
-        df = doc_freq(token,DF)
+        df = doc_freq(token , DF)
         idf = math.log((N + 1) / (df + 1))
 
         try:
@@ -37,15 +37,15 @@ def gen_vector(tokens,N,total_vocab,DF):
 
 
 def cosine_similarity(k, query,D,N,total_vocab,DF):
-    preprocessed_query = preprocess(query)
+    preprocessed_query = preprocess(query,1)
     tokens = word_tokenize(str(preprocessed_query))
     # print(tokens)
     # print("\nQuery:", query)
 
     d_cosines = []
 
-    print("N",N)
-    print("total", len(total_vocab))
+    # print("N",N)
+    # print("total", len(total_vocab))
     query_vector = gen_vector(tokens,N,total_vocab,DF)
     # print("query victor ", query_vector)
 
@@ -57,7 +57,7 @@ def cosine_similarity(k, query,D,N,total_vocab,DF):
 
     # print("Most similar Documents-IDs : ")
 
-    print("is out ",out)
+    # print("is out ",out)
 
     return out
 

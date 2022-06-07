@@ -7,5 +7,7 @@ D=0
 total_vocab=""
 DF={}
 
+stopword=[]
+
 
 liiiist=[doc_set,processed_set,N,D,total_vocab,DF]

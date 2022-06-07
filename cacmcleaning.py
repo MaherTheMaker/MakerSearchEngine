@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import Data2 as dddd2
 
 def cleanAll():
     with open('cacm/cacm.all') as CISI_file:
@@ -8,6 +8,9 @@ def cleanAll():
             lines += "\n" + l.strip() if l.startswith(".") else " " + l.strip()
         lines = lines.lstrip("\n").split("\n")
 
+    with open('cacm/common_words') as stop_file:
+        for l in stop_file.readlines():
+            dddd2.stopword.append(l.strip())
     print("Done")
     date_set={}
     doc_set = {}

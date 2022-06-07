@@ -1,7 +1,8 @@
 import numpy as np
 from nltk import word_tokenize, PorterStemmer
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords as sw
 from num2words import num2words
+import Data2 as dddd2
 
 
 def print_hi(name):
@@ -14,8 +15,12 @@ def convert_lower_case(data):
     return np.char.lower(data)
 
 
-def remove_stop_words(data):
-    stop_words = stopwords.words('english')
+def remove_stop_words(data, aa):
+    stop_words=[]
+    if aa == 1:
+        stop_words = sw.words('english')
+    else:
+        stop_words = dddd2.stopword
     words = word_tokenize(str(data))
     new_text = ""
     for w in words:
@@ -31,6 +36,7 @@ def remove_punctuation(data):
         data = np.char.replace(data, "  ", " ")
     data = np.char.replace(data, ',', '')
     return data
+
 
 def remove_apostrophe(data):
     return np.char.replace(data, "'", "")
@@ -58,6 +64,7 @@ def convert_numbers(data):
     new_text = np.char.replace(new_text, "-", " ")
     return new_text
 
+
 def tokenizer(processed_set):
     tokens_set = {}
     doc_token_id = ""
@@ -69,17 +76,17 @@ def tokenizer(processed_set):
     print("done")
     return tokens_set
 
-def preprocess(data):
+
+def preprocess(data, aa):
     data = convert_lower_case(data)
-    data = remove_punctuation(data) #remove comma seperately
+    data = remove_punctuation(data)  # remove comma seperately
     data = remove_apostrophe(data)
-    data = remove_stop_words(data)
+    data = remove_stop_words(data, aa)
     data = convert_numbers(data)
     data = stemming(data)
     data = remove_punctuation(data)
     data = convert_numbers(data)
-    data = stemming(data) #needed again as we need to stem the words
-    data = remove_punctuation(data) #needed again as num2word is giving few hypens and commas fourty-one
-    data = remove_stop_words(data) #needed again as num2word is giving stop words 101 - one hundred and one
+    data = stemming(data)  # needed again as we need to stem the words
+    data = remove_punctuation(data)  # needed again as num2word is giving few hypens and commas fourty-one
+    data = remove_stop_words(data, aa)  # needed again as num2word is giving stop words 101 - one hundred and one
     return data
-

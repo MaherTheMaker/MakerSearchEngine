@@ -70,16 +70,65 @@ def add_message():
     return "username"
 
 
+from textblob import TextBlob
+
+
+@app.route('/check/<sentence>')
+def correct_sentence_spelling(sentence):
+    sentence = TextBlob(sentence)
+
+    result = sentence.correct()
+
+    print(result)
+    return str(result)
+
+
+@app.route('/Eval')
+def Eval():
+    # show the user profile for that user
+    stuffs = MM.Eval()
+    print("stuff", len(stuffs[0]))
+    lsit = []
+    for i in range(len(stuffs[0])):
+        lsit.append({'doc': "pres=" + str(stuffs[0][i]) + " recall = " + str(stuffs[1][i]), 'id': str(i)})
+    lsit.append({'doc': "averege pres =" + str(stuffs[3]) + "     average recall =" + str(
+        stuffs[4]) + "    F_Measure = " + str(stuffs[5]), 'id': "100"})
+    print(lsit)
+
+    return jsonify(lsit)
 
 
 @app.route('/Search1/<QueryText>')
 def SearchCISI(QueryText):
     # show the user profile for that user
     Q = MM.Query1(QueryText)
-    print("q",Q)
+    print("q", Q)
     lsit = []
     for i in range(len(Q)):
         lsit.append({'doc': DDDD1.doc_set[str(Q[i])], 'id': str(Q[i])})
+    print(lsit)
+
+    return jsonify(lsit)
+
+
+@app.route('/Search3/<QueryText>')
+def SearchCISIWithClisuter(QueryText):
+    # show the user profile for that user
+    MM.checkCluster(QueryText)
+    qry = "The need to provide personnel for the information field."
+    res = MM.checkCluster(QueryText)
+    lsit = []
+    if res != -1:
+        Q = MM.Query1Cluster(qry, res)
+        for i in Q:
+            lsit.append({'doc': DDDD1.doc_set[str(i)], 'id': str(i)})
+
+    else:
+        Q = MM.Query1(QueryText)
+        print("q", Q)
+
+        for i in range(len(Q)):
+            lsit.append({'doc': DDDD1.doc_set[str(Q[i])], 'id': str(Q[i])})
     print(lsit)
 
     return jsonify(lsit)
@@ -105,7 +154,13 @@ if __name__ == '__main__':
     # else:
     #     MM.startCISI()
     #     MM.savefile()
+    MM.start()
     MM.startCACM()
     MM.startCISI()
+    MM.jojo()
+    MM.startCISI_cluser(0)
+    MM.startCISI_cluser(1)
+    MM.startCISI_cluser(2)
+    MM.startCISI_cluser(3)
+    MM.startCISI_cluser(4)
     app.run(debug=False, port=4000)
-
